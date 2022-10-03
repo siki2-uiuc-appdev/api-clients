@@ -1,3 +1,7 @@
+- require
+- gem install twilio
+
+
 # Umbrella
 
 In this project, we'll write a Ruby program that uses the Google Maps API and Dark Sky API to tell the user whether or not they need to carry an umbrella with them.

@@ -1,5 +1,5 @@
-require_relative "gmaps_client_solution"
-require "twilio-ruby"
+require "open-uri"
+require "json"
 
 line_width = 40
 
@@ -8,16 +8,34 @@ puts "Will you need an umbrella today?".center(line_width)
 puts "="*line_width
 puts
 puts "Where are you?"
-# user_location = gets.chomp
-user_location = "Brooklyn"
+user_location = gets.chomp
+# user_location = "Saint Paul"
 puts "Checking the weather at #{user_location}...."
 
 # Get the lat/lng of location from Google Maps API
 
-coords = GmapsClient.geocode(user_location)
+gmaps_key = "AIzaSyAgRzRHJZf-uoevSnYDTf08or8QFS_fb3U"
 
-latitude = coords.fetch(:lat)
-longitude = coords.fetch(:lng)
+gmaps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=#{user_location}&key=#{gmaps_key}"
+
+# p "Getting coordinates from:"
+# p gmaps_url
+
+raw_gmaps_data = URI.open(gmaps_url).read
+
+parsed_gmaps_data = JSON.parse(raw_gmaps_data)
+
+results_array = parsed_gmaps_data.fetch("results")
+
+first_result_hash = results_array.at(0)
+
+geometry_hash = first_result_hash.fetch("geometry")
+
+location_hash = geometry_hash.fetch("location")
+
+latitude = location_hash.fetch("lat")
+
+longitude = location_hash.fetch("lng")
 
 puts "Your coordinates are #{latitude}, #{longitude}."
 
@@ -78,32 +96,6 @@ end
 
 if any_precipitation == true
   puts "You might want to take an umbrella!"
-  
-  # Get your credentials from your Twilio dashboard, or from Canvas if you're using mine
-  # Learn how to store credentials securely in environment variables: https://chapters.firstdraft.com/chapters/792
-  twilio_sid = ENV.fetch("TWILIO_ACCOUNT_SID", false)
-  twilio_token = ENV.fetch("TWILIO_AUTH_TOKEN", false)
-  twilio_sending_number = ENV.fetch("TWILIO_SENDING_NUMBER", false)
-
-  if twilio_sid && twilio_token && twilio_sending_number
-    # Create an instance of the Twilio Client and authenticate with your API key
-    twilio_client = Twilio::REST::Client.new(twilio_sid, twilio_token)
-
-    # Put your own phone number here if you want to see it in action
-    recipient_number = "+13126000251"
-
-    # Craft your SMS as a Hash literal with three keys:
-    #   :from, :to, and :body
-    sms_info = {
-      :from => twilio_sending_number,
-      :to => recipient_number, 
-      :body => "It's going to rain today — take an umbrella!"
-    }
-
-    # Send your SMS!
-    puts "Notifying #{recipient_number}"
-    twilio_client.api.account.messages.create(sms_info)
-  end
 else
   puts "You probably won't need an umbrella."
 end
