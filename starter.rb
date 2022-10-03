@@ -10,7 +10,7 @@ puts "="*line_width
 puts
 puts "Where are you?"
 # user_location = gets.chomp
-user_location = "Saint Paul"
+user_location = "Trenton"
 puts "Checking the weather at #{user_location}...."
 
 # Get the lat/lng of location from Google Maps API
@@ -83,7 +83,25 @@ next_twelve_hours.each do |hour_hash|
 end
 
 if any_precipitation == true
+  require "twilio-ruby"
+
   puts "You might want to take an umbrella!"
+
+  # Send a text message
+
+  twilio_client = Twilio::REST::Client.new("AC28922e0822d827ee29834fe1dc6f681e", "1560b96faf1c13419b9f3db964d8c5c7")
+
+  # Craft your SMS as a Hash literal with three keys
+  sms_info = {
+  :from => "+13126636198",
+  :to => "+16308259952", # Put your own phone number here if you want to see it in action
+  :body => "It's going to rain today — take an umbrella!"
+}
+# Send your SMS
+  twilio_client.api.account.messages.create(sms_info)
+
 else
   puts "You probably won't need an umbrella."
 end
+
+#gem install twilio-ruby
