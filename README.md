@@ -1,7 +1,3 @@
-- require
-- gem install twilio
-
-
 # API Clients
 
 In this project, we'll enhance the solution to the Umbrella project by:
