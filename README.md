@@ -23,3 +23,7 @@ Some handy links:
 
  - [Our Own Classes chapter](https://chapters.firstdraft.com/chapters/769)
  - [Sending emails and text messages chapter](https://chapters.firstdraft.com/chapters/848)
+ 
+## Stretch goal
+
+Try to send an email to the user (via Mailgun) in addition to a text message.
