@@ -1,6 +1,7 @@
 require "open-uri"
 require "json"
 
+
 line_width = 40
 
 puts "="*line_width
@@ -8,30 +9,17 @@ puts "Will you need an umbrella today?".center(line_width)
 puts "="*line_width
 puts
 puts "Where are you?"
-user_location = gets.chomp
-# user_location = "Saint Paul"
+# user_location = gets.chomp
+user_location = "Saint Paul"
 puts "Checking the weather at #{user_location}...."
 
 # Get the lat/lng of location from Google Maps API
 
-gmaps_key = "AIzaSyAgRzRHJZf-uoevSnYDTf08or8QFS_fb3U"
+require "./GmapsClient.rb"
 
-gmaps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=#{user_location}&key=#{gmaps_key}"
+location_hash = GmapsClient.address_to_coords(user_location)
 
-# p "Getting coordinates from:"
-# p gmaps_url
-
-raw_gmaps_data = URI.open(gmaps_url).read
-
-parsed_gmaps_data = JSON.parse(raw_gmaps_data)
-
-results_array = parsed_gmaps_data.fetch("results")
-
-first_result_hash = results_array.at(0)
-
-geometry_hash = first_result_hash.fetch("geometry")
-
-location_hash = geometry_hash.fetch("location")
+p location_hash
 
 latitude = location_hash.fetch("lat")
 
