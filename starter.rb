@@ -1,5 +1,7 @@
 require "open-uri"
 require "json"
+require "mailgun-ruby"
+require "twilio-ruby"
 
 
 line_width = 40
@@ -29,7 +31,7 @@ puts "Your coordinates are #{latitude}, #{longitude}."
 
 # Get the weather from Dark Sky API
 
-dark_sky_key = "26f63e92c5006b5c493906e7953da893"
+dark_sky_key = ENV.fetch("DARK_SKY_API_KEY")
 
 dark_sky_url = "https://api.darksky.net/forecast/#{dark_sky_key}/#{latitude},#{longitude}"
 
@@ -83,25 +85,50 @@ next_twelve_hours.each do |hour_hash|
 end
 
 if any_precipitation == true
-  require "twilio-ruby"
+
 
   puts "You might want to take an umbrella!"
 
-  # Send a text message
 
-  twilio_client = Twilio::REST::Client.new("AC28922e0822d827ee29834fe1dc6f681e", "1560b96faf1c13419b9f3db964d8c5c7")
+  # Send a text message
+  twilio_sid = ENV.fetch("TWILIO_ACCOUNT_SID")
+
+  twilio_token = ENV.fetch("TWILIO_AUTH_TOKEN")
+  
+  twilio_sending_phone_number = ENV.fetch("TWILIO_SENDING_PHONE_NUMBER")
+  personal_phone = ENV.fetch("PERSONAL_PHONE")
+
+  twilio_client = Twilio::REST::Client.new(twilio_sid, twilio_token)
 
   # Craft your SMS as a Hash literal with three keys
   sms_info = {
-  :from => "+13126636198",
-  :to => "+16308259952", # Put your own phone number here if you want to see it in action
+  :from => twilio_sending_phone_number,
+  :to => personal_phone, # Put your own phone number here if you want to see it in action
   :body => "It's going to rain today — take an umbrella!"
 }
 # Send your SMS
   twilio_client.api.account.messages.create(sms_info)
 
+
+
+  # Send an email
+  
+  mg_key = ENV.fetch("MAILGUN_API_KEY")
+  mg_sending_domain = ENV.fetch("MAILGUN_SENDING_DOMAIN")
+  personal_email = ENV.fetch("PERSONAL_EMAIL")
+  mg_client = Mailgun::Client.new(mg_key)
+
+  email_info = {
+    :from => "umbrella@appdevproject.com",
+    :to => personal_email,  # Put your own email address here if you want to see it in action
+    :subject => "Take an umbrella today!",
+    :text => "It's going to rain today, take an umbrella with you!"
+  }
+
+  mg_client.send_message(mg_sending_domain, email_info)
+
+
 else
   puts "You probably won't need an umbrella."
 end
 
-#gem install twilio-ruby
